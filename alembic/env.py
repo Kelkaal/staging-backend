@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from app.api.core.config import BASE_DIR, settings
+
 from app.api.db.database import Base
 from app.api.modules.v1.auth.models.otp_model import OTP
 from app.api.modules.v1.organization.models.organization_model import Organization
@@ -19,20 +19,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Override sqlalchemy.url with the URL from your application settings
-# This ensures migrations use the same database as your application
-if settings.DB_TYPE == "postgresql":
-    db_url = (
-        f"postgresql://{settings.DB_USER}:{settings.DB_PASS}"
-        f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-    )
-elif hasattr(settings, "DATABASE_URL") and settings.DATABASE_URL:
-    db_url = settings.DATABASE_URL
-else:
-    db_url = f"sqlite:///{BASE_DIR}/db.sqlite3"
 
-# Override the URL in the Alembic config
-config.set_main_option("sqlalchemy.url", db_url)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
