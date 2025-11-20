@@ -1,9 +1,8 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from app.api.db.database import Base
 from app.api.modules.v1.auth.models.otp_model import OTP
