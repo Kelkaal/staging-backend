@@ -77,7 +77,6 @@ jobs:
       - name: Build project
         run: uv build
 
-
   # =================================================================
   # CD Job: Runs only on push to dev, after CI succeeds
   # =================================================================
@@ -98,8 +97,12 @@ jobs:
           script: |
             set -e # Exit immediately if a command exits with a non-zero status.
 
-            # Navigate to the application directory
-            cd ~/staging-backend
+            # Define the project directory
+            PROJECT_DIR=~/legal-watch-dog-be
+            
+            # Navigate to the application directory.
+            # The script assumes the directory already exists from a previous clone.
+            cd $PROJECT_DIR
 
             # Write the production .env file from GitHub secrets
             cat <<EOF > .env
@@ -129,20 +132,39 @@ jobs:
             MAIL_FROM_NAME="LEGAL WATCH DOG"
             EOF
 
-            # Pull the latest changes from the dev branch
+            # Pull the latest changes from the main branch
             git pull origin main
 
             # Install/update dependencies using uv
-            # First, ensure uv is installed
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            source ~/.cargo/env
+            export PATH="$HOME/.cargo/bin:$PATH"
             uv sync
 
             # Apply any new database migrations
             uv run alembic upgrade head
 
-            # Restart the application using systemd
-            # Assumes a service named 'legal-watch-dog.service' is configured on the server
+            # Create the systemd service file for the application
+            cat << EOF | sudo tee /etc/systemd/system/legal-watch-dog.service
+            [Unit]
+            Description=Legal Watch Dog FastAPI Application
+            After=network.target
+
+            [Service]
+            User=ubuntu
+            Group=ubuntu
+            WorkingDirectory=$PROJECT_DIR
+            EnvironmentFile=$PROJECT_DIR/.env
+            ExecStart=$PROJECT_DIR/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+            Restart=always
+            RestartSec=5s
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+
+            # Reload systemd to recognize the new service, enable it, and restart it
+            sudo systemctl daemon-reload
+            sudo systemctl enable legal-watch-dog.service
             sudo systemctl restart legal-watch-dog.service
 
             echo "Deployment to dev environment completed successfully!"
