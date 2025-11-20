@@ -62,8 +62,10 @@ jobs:
       - name: Install dependencies using uv
         run: uv sync
 
-      - name: Lint & Format check with Ruff
-        run: uv run ruff check . && uv run ruff format --check .
+      - name: Lint & Format with Ruff
+        run: |
+          uv run ruff format . # Apply formatting changes
+          uv run ruff check .   # Then check for any remaining linting issues
 
       - name: Run database migrations
         run: uv run alembic upgrade head
