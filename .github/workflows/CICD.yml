@@ -76,7 +76,7 @@ jobs:
 
       - name: Build project
         run: uv build
-        
+
 
   # =================================================================
   # CD Job: Runs only on push to dev, after CI succeeds
@@ -99,7 +99,7 @@ jobs:
             set -e # Exit immediately if a command exits with a non-zero status.
 
             # Navigate to the application directory
-            cd ~/backend
+            cd ~/staging-backendgit
 
             # Write the production .env file from GitHub secrets
             cat <<EOF > .env
@@ -130,7 +130,7 @@ jobs:
             EOF
 
             # Pull the latest changes from the dev branch
-            git pull origin dev
+            git pull origin main
 
             # Install/update dependencies using uv
             # First, ensure uv is installed
