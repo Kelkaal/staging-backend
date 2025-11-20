@@ -10,7 +10,7 @@ on:
 
 jobs:
   # =================================================================
-  # CI Job: Runs on all PRs to dev/main and pushes to dev
+  # CI Job: Runs on all PRs and pushes to main
   # =================================================================
   ci:
     name: Test, Lint, and Build
@@ -78,7 +78,7 @@ jobs:
         run: uv build
 
   # =================================================================
-  # CD Job: Runs only on push to dev, after CI succeeds
+  # CD Job: Runs only on push to main, after CI succeeds
   # =================================================================
   deploy:
     name: Deploy to EC2
@@ -101,7 +101,6 @@ jobs:
             PROJECT_DIR=~/staging-backend
             
             # Navigate to the application directory.
-            # The script assumes the directory already exists from a previous clone.
             cd $PROJECT_DIR
 
             # Write the production .env file from GitHub secrets
@@ -137,7 +136,8 @@ jobs:
 
             # Install/update dependencies using uv
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            export PATH="$HOME/.cargo/bin:$PATH"
+            # Add potential install locations to the PATH to ensure 'uv' is found
+            export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
             uv sync
 
             # Apply any new database migrations
@@ -167,4 +167,4 @@ jobs:
             sudo systemctl enable legal-watch-dog.service
             sudo systemctl restart legal-watch-dog.service
 
-            echo "Deployment to dev environment completed successfully!"
+            echo "Deployment to main environment completed successfully!"
