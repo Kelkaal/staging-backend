@@ -137,6 +137,9 @@ jobs:
             export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
             uv sync
 
+            # Load environment variables from .env file for subsequent commands
+            export $(grep -v '^#' .env | xargs)
+
             # Apply any new database migrations
             uv run alembic upgrade head
 
@@ -147,4 +150,3 @@ jobs:
             pm2 save
 
             echo "Deployment to main environment completed successfully!"
-            
