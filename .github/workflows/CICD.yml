@@ -137,8 +137,12 @@ jobs:
             export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
             uv sync
 
-            # Load environment variables from .env file for subsequent commands
-            export $(grep -v '^#' .env | xargs)
+            # Load environment variables from the .env file in a robust way
+            if [ -f .env ]; then
+              set -a
+              source .env
+              set +a
+            fi
 
             # Apply any new database migrations
             uv run alembic upgrade head
