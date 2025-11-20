@@ -76,6 +76,7 @@ jobs:
 
       - name: Build project
         run: uv build
+        
 
   # =================================================================
   # CD Job: Runs only on push to dev, after CI succeeds
