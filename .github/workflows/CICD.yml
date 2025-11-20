@@ -42,7 +42,7 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/dbname
+      DATABASE_URL: postgresql+asyncpg://user:password@postgres:5432/dbname
       REDIS_URL: redis://localhost:6379/0
       JWT_SECRET_KEY: test-secret-key-for-ci
       JWT_ALGORITHM: HS256
@@ -143,28 +143,10 @@ jobs:
             # Apply any new database migrations
             uv run alembic upgrade head
 
-            # Create the systemd service file for the application
-            cat << EOF | sudo tee /etc/systemd/system/legal-watch-dog.service
-            [Unit]
-            Description=Legal Watch Dog FastAPI Application
-            After=network.target
-
-            [Service]
-            User=ubuntu
-            Group=ubuntu
-            WorkingDirectory=$PROJECT_DIR
-            EnvironmentFile=$PROJECT_DIR/.env
-            ExecStart=$PROJECT_DIR/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
-            Restart=always
-            RestartSec=5s
-
-            [Install]
-            WantedBy=multi-user.target
-            EOF
-
-            # Reload systemd to recognize the new service, enable it, and restart it
-            sudo systemctl daemon-reload
-            sudo systemctl enable legal-watch-dog.service
-            sudo systemctl restart legal-watch-dog.service
+            # Install PM2 if not available, and start the application
+            sudo npm install pm2@latest -g
+            pm2 startOrRestart ecosystem.config.js
+            pm2 startup | tail -n 1 | sudo bash
+            pm2 save
 
             echo "Deployment to main environment completed successfully!"
