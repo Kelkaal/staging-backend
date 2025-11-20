@@ -99,7 +99,7 @@ jobs:
             set -e # Exit immediately if a command exits with a non-zero status.
 
             # Navigate to the application directory
-            cd ~/staging-backendgit
+            cd ~/staging-backend
 
             # Write the production .env file from GitHub secrets
             cat <<EOF > .env
