@@ -98,7 +98,7 @@ jobs:
             set -e # Exit immediately if a command exits with a non-zero status.
 
             # Define the project directory
-            PROJECT_DIR=~/legal-watch-dog-be
+            PROJECT_DIR=~/staging-backend
             
             # Navigate to the application directory.
             # The script assumes the directory already exists from a previous clone.
